@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matengenezo - NJIAFIX</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #0f2a3a; color: #fff; margin: 0; padding: 16px; }
+  h2 { text-align: center; }
+  #search { width: 100%; padding: 12px; border-radius: 8px; border: none; margin-bottom: 16px; font-size: 16px; box-sizing: border-box; }
+  .cats { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .cat-btn { background: #ffd60a; color: #0f2a3a; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; border: none; }
+  .cat-btn.active { background: #0e6e8c; color: #fff; }
+  .guide { background: #163c52; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .guide h3 { margin: 0 0 6px 0; color: #ffd60a; }
+  .guide .meta { font-size: 12px; opacity: 0.8; margin-bottom: 8px; }
+  .guide .symptom { font-style: italic; margin-bottom: 8px; }
+  .guide .steps { white-space: pre-line; line-height: 1.5; }
+  .loading { text-align: center; padding: 20px; opacity: 0.7; }
+</style>
+</head>
+<body>
+
+<h2>🔧 Matengenezo ya Vifaa</h2>
+<input type="text" id="search" placeholder="Tafuta tatizo... mfano: TV haiwaki">
+
+<div class="cats" id="cats">
+  <button class="cat-btn active" data-id="">Zote</button>
+  {% for c in categories %}
+  <button class="cat-btn" data-id="{{ c.id }}">{{ c.name }}</button>
+  {% endfor %}
+</div>
+
+<div id="results"><div class="loading">Inapakia...</div></div>
+
+<script>
+let activeCategory = "";
+
+function loadGuides(query = "") {
+  const results = document.getElementById("results");
+  results.innerHTML = '<div class="loading">Inapakia...</div>';
+  let url = "/api/guides/?";
+  if (activeCategory) url += "category_id=" + activeCategory + "&";
+  if (query) url += "q=" + encodeURIComponent(query);
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      results.innerHTML = "";
+      if (data.guides.length === 0) {
+        results.innerHTML = '<div class="loading">Hakuna matokeo. Jaribu neno lingine.</div>';
+        return;
+      }
+      data.guides.forEach(g => {
+        const div = document.createElement("div");
+        div.className = "guide";
+        div.innerHTML = `
+          <h3>${g.title}</h3>
+          <div class="meta">${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
+          <div class="symptom">Dalili: ${g.symptom}</div>
+          <div class="steps">${g.solution_steps}</div>
+        `;
+        results.appendChild(div);
+      });
+    })
+    .catch(() => {
+      results.innerHTML = '<div class="loading">Imeshindwa kupakia. Angalia mtandao wako.</div>';
+    });
+}
+
+document.getElementById("search").addEventListener("input", (e) => {
+  loadGuides(e.target.value);
+});
+
+document.querySelectorAll(".cat-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCategory = btn.dataset.id;
+    loadGuides(document.getElementById("search").value);
+  });
+});
+
+loadGuides();
+</script>
+</body>
+</html>
