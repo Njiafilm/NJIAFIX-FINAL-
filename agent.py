@@ -1,75 +1,57 @@
-import subprocess
-import platform
-import shutil
 import os
+import shutil
+import platform
+import subprocess
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
-@app.route('/execute-fix', methods=['POST'])
-def execute_fix():
-    data = request.json
-    action = data.get('action')
-    
-    try:
-        # --- 1. KUCHUKUA NA KURUDISHA DATA (BACKUP & RESTORE) ---
-        if action == 'backup_data':
-            target_dir = data.get('source_path', './data')
-            backup_dest = data.get('backup_path', './backup_store')
-            if os.path.exists(target_dir):
-                shutil.make_archive(backup_dest, 'zip', target_dir)
-                return jsonify({"status": "success", "message": "Backup imekamilika na kuhifadhiwa vizuri."})
-            return jsonify({"status": "error", "message": "Njia (path) ya mafaili haionekani."}), 400
+# Moduli ya Miongozo ya Ukarabati (Repair Guides Module)
+REPAIR_GUIDES = {
+    "phone": {
+        "title": "Ukarabati wa Simu (Mobile Maintenance)",
+        "steps": [
+            "1. Angalia afya ya betri na kiwango cha chaji kupitia ADB.",
+            "2. Safisha cache na faili taka zinazojaza kumbukumbu.",
+            "3. Hakikisha mfumo wa uendeshaji (OS) umesasishwa ili kuzuia mdudu wa kiufundi."
+        ]
+    },
+    "pc": {
+        "title": "Ukarabati wa Kompyuta (PC Health & Cleanup)",
+        "steps": [
+            "1. Kagua nafasi iliyobaki kwenye diski kuu (Disk Space Check).",
+            "2. Simamisha programu zinazotumia rasilimali nyingi wakati wa kuwasha (Startup Optimization).",
+            "3. Endesha uchunguzi wa faili za mfumo ili kurekebisha hitilafu zilizopo."
+        ]
+    },
+    "car": {
+        "title": "Utatuzi wa Awali wa Magari (OBD-II Diagnostics)",
+        "steps": [
+            "1. Unganisha kifaa cha OBD-II kwenye bandari ya gari.",
+            "2. Soma namba za makosa (Diagnostic Trouble Codes - DTC).",
+            "3. Futa makosa ya muda baada ya kufanya marekebisho ya mitambo au sensa."
+        ]
+    }
+}
 
-        elif action == 'restore_data':
-            # Kuweka upya data kutoka kwenye faili la zip
-            return jsonify({"status": "success", "message": "Mchakato wa kurejesha data (Restore) umeanza kwa mafanikio."})
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({
+        "status": "success",
+        "message": "Karibu kwenye NjiaFix Diagnostic Engine API",
+        "modules": ["phone", "pc", "car", "tv", "backup", "repair-guides"]
+    }), 200
 
-        # --- 2. UCHUNGUZI WA GARI ---
-        elif action == 'car_health':
-            return jsonify({
-                "status": "success",
-                "device": "Vehicle Diagnostics",
-                "engine_status": "Normal",
-                "battery_voltage": "12.6V - Good"
-            })
-
-        # --- 3. UCHUNGUZI WA TV ---
-        elif action == 'tv_diagnostic':
-            return jsonify({
-                "status": "success",
-                "device": "Television / Display",
-                "display_panel": "Checked - Active."
-            })
-
-        # --- 4. UCHUNGUZI WA KOMPYUTA ---
-        elif action == 'pc_health':
-            sys_info = platform.uname()
-            total, used, free = shutil.disk_usage("/")
-            return jsonify({
-                "status": "success",
-                "device": "Computer",
-                "system": sys_info.system,
-                "disk_free_gb": round(free / (2**30), 2)
-            })
-
-        # --- 5. KUSAKINISHA UPYA APP KWENYE SIMU ---
-        elif action == 'reinstall_app':
-            pkg_name = data.get('package_name', 'com.example.app')
-            subprocess.run(['adb', 'uninstall', pkg_name], capture_output=True, text=True)
-            return jsonify({
-                "status": "success",
-                "device": "Phone",
-                "message": f"App ya {pkg_name} imeondolewa."
-            })
-
-        else:
-            return jsonify({"status": "error", "message": "Amri haijatambulika kwenye mfumo wa NjiaFix"}), 400
-
-    except Exception as ex:
-        return jsonify({"status": "error", "message": f"Hitilafu ya Mfumo: {str(ex)}"}), 500
+@app.route('/api/repair-guides/<device_type>', methods=['GET'])
+def get_repair_guide(device_type):
+    guide = REPAIR_GUIDES.get(device_type.lower())
+    if guide:
+        return jsonify({"status": "success", "data": guide}), 200
+    else:
+        return jsonify({
+            "status": "error", 
+            "message": "Mwongozo haupatikani kwa kifaa hiki. Jaribu: phone, pc, au car"
+        }), 404
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5555)
