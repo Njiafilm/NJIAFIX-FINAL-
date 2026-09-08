@@ -34,6 +34,21 @@
 <div id="results"><div class="loading">Inapakia...</div></div>
 
 <script>
+// Sehemu ya mawasiliano na Local Agent ya kwenye PC ya fundi
+async function runAutomaticFix(category, action) {
+    try {
+        let response = await fetch('http://localhost:5555/execute-fix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: category, action: action })
+        });
+        let data = await response.json();
+        alert("Matokeo: " + (data.message || data.output));
+    } catch (err) {
+        alert("Imeshindikana kuunganisha na Local Agent ya kwenye PC ya fundi. Hakikisha imewashwa!");
+    }
+}
+
 let activeCategory = "";
 
 function loadGuides(query = "") {
@@ -59,6 +74,12 @@ function loadGuides(query = "") {
           <div class="meta">${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
           <div class="symptom">Dalili: ${g.symptom}</div>
           <div class="steps">${g.solution_steps}</div>
+          
+          <!-- Vitufe vya One-Click Fix kwa ajili ya fundi -->
+          <div style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px;">
+            <button onclick="runAutomaticFix('simu', 'reboot')" style="background:#ffd60a; color:#0f2a3a; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Tekeleza Fix (Simu)</button>
+            <button onclick="runAutomaticFix('kompyuta', 'flush_dns')" style="background:#ffd60a; color:#0f2a3a; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; margin-left: 6px;">Safisha DNS (PC)</button>
+          </div>
         `;
         results.appendChild(div);
       });
