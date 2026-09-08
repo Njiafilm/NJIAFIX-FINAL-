@@ -5,24 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matengenezo - NJIAFIX</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #0f2a3a; color: #fff; margin: 0; padding: 16px; }
-  h2 { text-align: center; }
+  body { font-family: Arial, sans-serif; background: #0f2a3a; color: #fff; margin: 0; padding: 16px; box-sizing: border-box; }
+  h2 { text-align: center; color: #ffd60a; margin-bottom: 16px; }
   #search { width: 100%; padding: 12px; border-radius: 8px; border: none; margin-bottom: 16px; font-size: 16px; box-sizing: border-box; }
   .cats { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
   .cat-btn { background: #ffd60a; color: #0f2a3a; padding: 10px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; border: none; }
   .cat-btn.active { background: #0e6e8c; color: #fff; }
-  .guide { background: #163c52; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .guide { background: #163c52; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
   .guide h3 { margin: 0 0 6px 0; color: #ffd60a; }
   .guide .meta { font-size: 12px; opacity: 0.8; margin-bottom: 8px; }
-  .guide .symptom { font-style: italic; margin-bottom: 8px; }
-  .guide .steps { white-space: pre-line; line-height: 1.5; }
+  .guide .symptom { font-style: italic; margin-bottom: 8px; color: #a0c4df; }
+  .guide .steps { white-space: pre-line; line-height: 1.5; margin-bottom: 12px; }
+  .tool-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; }
+  .action-btn { background: #ffd60a; color: #0f2a3a; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .bt-btn { background: #0e6e8c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .loading { text-align: center; padding: 20px; opacity: 0.7; }
 </style>
 </head>
 <body>
 
-<h2>🔧 Matengenezo ya Vifaa</h2>
-<input type="text" id="search" placeholder="Tafuta tatizo... mfano: TV haiwaki">
+<h2>🔧 NjiaFix - Jopo la Ufundi</h2>
+<input type="text" id="search" placeholder="Tafuta tatizo... mfano: TV haiwaki, simu">
 
 <div class="cats" id="cats">
   <button class="cat-btn active" data-id="">Zote</button>
@@ -34,7 +37,21 @@
 <div id="results"><div class="loading">Inapakia...</div></div>
 
 <script>
-// Sehemu ya mawasiliano na Local Agent ya kwenye PC ya fundi
+// Kazi ya kuunganisha kupitia Bluetooth kutoka kwenye simu ya fundi
+async function connectViaBluetooth() {
+    try {
+        const device = await navigator.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: ['battery_service']
+        });
+        const server = await device.gatt.connect();
+        alert("Imefanikiwa kuunganishwa na kifaa: " + (device.name || "Bluetooth Device"));
+    } catch (error) {
+        alert("Imeshindikana kuunganisha kwa Bluetooth: " + error);
+    }
+}
+
+// Kazi ya kutekeleza amri za kiufundi za One-Click Fix
 async function runAutomaticFix(category, action) {
     try {
         let response = await fetch('http://localhost:5555/execute-fix', {
@@ -45,7 +62,7 @@ async function runAutomaticFix(category, action) {
         let data = await response.json();
         alert("Matokeo: " + (data.message || data.output));
     } catch (err) {
-        alert("Imeshindikana kuunganisha na Local Agent ya kwenye PC ya fundi. Hakikisha imewashwa!");
+        alert("Imeshindikana kuunganisha na Local Agent. Hakikisha huduma imewashwa!");
     }
 }
 
@@ -62,7 +79,7 @@ function loadGuides(query = "") {
     .then(r => r.json())
     .then(data => {
       results.innerHTML = "";
-      if (data.guides.length === 0) {
+      if (!data.guides || data.guides.length === 0) {
         results.innerHTML = '<div class="loading">Hakuna matokeo. Jaribu neno lingine.</div>';
         return;
       }
@@ -75,10 +92,10 @@ function loadGuides(query = "") {
           <div class="symptom">Dalili: ${g.symptom}</div>
           <div class="steps">${g.solution_steps}</div>
           
-          <!-- Vitufe vya One-Click Fix kwa ajili ya fundi -->
-          <div style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px;">
-            <button onclick="runAutomaticFix('simu', 'reboot')" style="background:#ffd60a; color:#0f2a3a; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Tekeleza Fix (Simu)</button>
-            <button onclick="runAutomaticFix('kompyuta', 'flush_dns')" style="background:#ffd60a; color:#0f2a3a; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; margin-left: 6px;">Safisha DNS (PC)</button>
+          <div class="tool-btns">
+            <button class="action-btn" onclick="runAutomaticFix('simu', 'reboot')">Fix Simu (Reboot)</button>
+            <button class="action-btn" onclick="runAutomaticFix('kompyuta', 'flush_dns')">Flush DNS (PC)</button>
+            <button class="bt-btn" onclick="connectViaBluetooth()">Bluetooth Link</button>
           </div>
         `;
         results.appendChild(div);
