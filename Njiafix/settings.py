@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'repairs',
+    'repairs.apps.RepairsConfig',  # Imesasishwa ili kuwezesha automated migrations wakati app inapowaka
 ]
 
 MIDDLEWARE = [
