@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import DeviceCategory, RepairGuide
 
@@ -33,3 +33,37 @@ def api_guides(request):
         "image": g.image.url if g.image else None,
     } for g in guides[:100]]
     return JsonResponse({"guides": data})
+
+
+def ongeza_repair_guide(request):
+    """View ya kupokea data kutoka kwenye fomu na kuzihifadhi kwenye Database ya PostgreSQL"""
+    if request.method == 'POST':
+        category_id = request.POST.get('category')
+        title = request.POST.get('title')
+        brand = request.POST.get('brand')
+        symptom = request.POST.get('symptom')
+        solution_steps = request.POST.get('solution_steps')
+        difficulty = request.POST.get('difficulty', 'easy')
+        image = request.FILES.get('image')
+
+        # Hakikisha category ipo kabla ya kuhifadhi
+        category_obj = None
+        if category_id:
+            category_obj = DeviceCategory.objects.filter(id=category_id).first()
+
+        # Unda na uhifadhi taarifa mpya kwenye RepairGuide
+        RepairGuide.objects.create(
+            category=category_obj,
+            title=title,
+            brand=brand,
+            symptom=symptom,
+            solution_steps=solution_steps,
+            difficulty=difficulty,
+            image=image
+        )
+        
+        # Unaweza kurudisha kwenye ukurasa wa matengenezo au sehemu unayotaka baada ya kuhifadhi
+        return redirect('matengenezo_page')
+
+    categories = DeviceCategory.objects.all()
+    return render(request, 'ongeza_repair_guide.html', {"categories": categories})
