@@ -4,7 +4,10 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key-change-this')
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-key-change-this'
+)
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -51,11 +54,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Njiafix.wsgi.application'
 
+# Database
+# Render PostgreSQL itatumika kupitia DATABASE_URL.
+# SQLite inabaki kama fallback kwa local development.
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=False,
     )
 }
 
@@ -84,7 +90,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
