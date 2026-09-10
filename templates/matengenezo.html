@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Matengenezo - NJIAFIX</title>
+
+<!-- Miunganisho ya PWA na Manifest -->
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#0f2a3a">
+
 <style>
   body { font-family: Arial, sans-serif; background: #0f2a3a; color: #fff; margin: 0; padding: 16px; box-sizing: border-box; }
   h2 { text-align: center; color: #ffd60a; margin-bottom: 16px; }
@@ -37,6 +42,15 @@
 <div id="results"><div class="loading">Inapakia...</div></div>
 
 <script>
+// Kusajili Service Worker ili kuruhusu app kufanya kazi Offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/static/sw.js')
+      .then((reg) => { console.log('Service Worker imesajiliwa mafanikio!', reg.scope); })
+      .catch((err) => { console.log('Imeshindikana kusajili Service Worker:', err); });
+  });
+}
+
 // Kazi ya kuunganisha kupitia Bluetooth kutoka kwenye simu ya fundi
 async function connectViaBluetooth() {
     try {
