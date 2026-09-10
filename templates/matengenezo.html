@@ -47,7 +47,7 @@ async function connectViaBluetooth() {
         const server = await device.gatt.connect();
         alert("Imefanikiwa kuunganishwa na kifaa: " + (device.name || "Bluetooth Device"));
     } catch (error) {
-        alert("Imeshindikana kuunganisha kwa Bluetooth: " + error);
+        alert("Imeshindikana kuunganishwa kwa Bluetooth: " + error);
     }
 }
 
@@ -62,7 +62,7 @@ async function runAutomaticFix(category, action) {
         let data = await response.json();
         alert("Matokeo: " + (data.message || data.output));
     } catch (err) {
-        alert("Imeshindikana kuunganisha na Local Agent. Hakikisha huduma imewashwa!");
+        alert("Imeshindikana kuunganishwa na Local Agent. Hakikisha huduma imewashwa!");
     }
 }
 
