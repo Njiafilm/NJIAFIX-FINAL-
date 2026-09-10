@@ -24,6 +24,8 @@
   .tool-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; }
   .action-btn { background: #ffd60a; color: #0f2a3a; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .bt-btn { background: #0e6e8c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .otg-btn { background: #e07a5f; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .wifi-btn { background: #2a9d8f; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .loading { text-align: center; padding: 20px; opacity: 0.7; }
 </style>
 </head>
@@ -62,6 +64,19 @@ async function connectViaBluetooth() {
         alert("Imefanikiwa kuunganishwa na kifaa: " + (device.name || "Bluetooth Device"));
     } catch (error) {
         alert("Imeshindikana kuunganishwa kwa Bluetooth: " + error);
+    }
+}
+
+// Kazi ya kuunganisha kupitia OTG Cable
+function connectViaOTG() {
+    alert("Unganisha kifaa chako kupitia OTG cable. Hakikisha 'USB Debugging' au OTG imewashwa kwenye simu inayotengenezwa.");
+}
+
+// Kazi ya kuunganisha kupitia Wi-Fi / Local Network
+function connectViaWiFi() {
+    let ip = prompt("Weka IP address ya kifaa au Local Agent (mfano: 192.168.1.50:5555):");
+    if (ip) {
+        alert("Inajaribu kuunganishwa na mtandao kupitia IP: " + ip);
     }
 }
 
@@ -110,6 +125,8 @@ function loadGuides(query = "") {
             <button class="action-btn" onclick="runAutomaticFix('simu', 'reboot')">Fix Simu (Reboot)</button>
             <button class="action-btn" onclick="runAutomaticFix('kompyuta', 'flush_dns')">Flush DNS (PC)</button>
             <button class="bt-btn" onclick="connectViaBluetooth()">Bluetooth Link</button>
+            <button class="otg-btn" onclick="connectViaOTG()">OTG Link</button>
+            <button class="wifi-btn" onclick="connectViaWiFi()">Wi-Fi Link</button>
           </div>
         `;
         results.appendChild(div);
