@@ -1,19 +1,20 @@
 {
-  "name": "Njiafix",
-  "short_name": "Njiafix",
-  "start_url": "/matengenezo/",
+  "name": "NjiaFix - Jopo la Ufundi",
+  "short_name": "NjiaFix",
+  "description": "Mfumo wa kisasa wa kiteknolojia unaowasaidia mafundi kusimamia na kutatua hitilafu za vifaa vya kielektroniki.",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d1b2a",
-  "theme_color": "#1b263b",
+  "background_color": "#0f2a3a",
+  "theme_color": "#0f2a3a",
   "icons": [
     {
-      "src": "/static/images/icon-192.png",
+      "src": "/static/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/static/images/icon-512.png",
+      "src": "/static/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
