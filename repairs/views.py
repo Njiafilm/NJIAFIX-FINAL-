@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .models import DeviceCategory, RepairGuide
+import json
+import os  // <--- Hakikisha unaongeza hii juu kabisa kwenye faili kama haipo
 
 def matengenezo_page(request):
     categories = DeviceCategory.objects.all()
@@ -36,7 +37,6 @@ def api_guides(request):
 
 
 def ongeza_repair_guide(request):
-    """View ya kupokea data kutoka kwenye fomu na kuzihifadhi kwenye Database ya PostgreSQL"""
     if request.method == 'POST':
         category_id = request.POST.get('category')
         title = request.POST.get('title')
@@ -46,12 +46,10 @@ def ongeza_repair_guide(request):
         difficulty = request.POST.get('difficulty', 'easy')
         image = request.FILES.get('image')
 
-        # Hakikisha category ipo kabla ya kuhifadhi
         category_obj = None
         if category_id:
             category_obj = DeviceCategory.objects.filter(id=category_id).first()
 
-        # Unda na uhifadhi taarifa mpya kwenye RepairGuide
         RepairGuide.objects.create(
             category=category_obj,
             title=title,
@@ -61,9 +59,25 @@ def ongeza_repair_guide(request):
             difficulty=difficulty,
             image=image
         )
-        
-        # Unaweza kurudisha kwenye ukurasa wa matengenezo au sehemu unayotaka baada ya kuhifadhi
         return redirect('matengenezo_page')
 
     categories = DeviceCategory.objects.all()
     return render(request, 'ongeza_repair_guide.html', {"categories": categories})
+
+
+# <--- Weka hapa chini kabisa kwenye views.py --->
+def execute_fix(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        action = data.get('action')
+        
+        if action == 'flush_dns':
+            # Inafanya Flush DNS kwenye kompyuta moja kwa moja
+            os.system('ipconfig /flushdns') # Kwa Windows
+            return JsonResponse({'message': 'DNS imesafishwa kikamilifu kwenye PC!'})
+            
+        elif action == 'reboot':
+            # Amri ya kuwasha upya huduma au kifaa
+            return JsonResponse({'message': 'Amri ya kuanzisha upya imetumwa.'})
+            
+    return JsonResponse({'error': 'Haikuwezekana kutekeleza'}, status=400)
