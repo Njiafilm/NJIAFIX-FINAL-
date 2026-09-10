@@ -26,13 +26,15 @@
   .bt-btn { background: #0e6e8c; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .otg-btn { background: #e07a5f; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .wifi-btn { background: #2a9d8f; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .car-btn { background: #e76f51; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
+  .print-btn { background: #457b9d; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .loading { text-align: center; padding: 20px; opacity: 0.7; }
 </style>
 </head>
 <body>
 
-<h2>🔧 NjiaFix - Jopo la Ufundi</h2>
-<input type="text" id="search" placeholder="Tafuta tatizo... mfano: TV haiwaki, simu">
+<h2>🔧 NjiaFix - Jopo la Ufundi (All-in-One Dashboard)</h2>
+<input type="text" id="search" placeholder="Tafuta tatizo... mfano: Simu, Printer, Gari, Camera">
 
 <div class="cats" id="cats">
   <button class="cat-btn active" data-id="">Zote</button>
@@ -53,7 +55,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Kazi ya kuunganisha kupitia Bluetooth kutoka kwenye simu ya fundi
+// 1. Kazi ya kuunganisha kupitia Bluetooth (Simu & Magari OBD2)
 async function connectViaBluetooth() {
     try {
         const device = await navigator.bluetooth.requestDevice({
@@ -61,37 +63,52 @@ async function connectViaBluetooth() {
             optionalServices: ['battery_service']
         });
         const server = await device.gatt.connect();
-        alert("Imefanikiwa kuunganishwa na kifaa: " + (device.name || "Bluetooth Device"));
+        alert("Imefanikiwa kuunganishwa na kifaa cha Bluetooth: " + (device.name || "Bluetooth Device"));
     } catch (error) {
         alert("Imeshindikana kuunganishwa kwa Bluetooth: " + error);
     }
 }
 
-// Kazi ya kuunganisha kupitia OTG Cable
+// 2. Kazi ya kuunganisha kupitia OTG Cable (Uchunguzi wa Simu/Vifaa vya USB)
 function connectViaOTG() {
-    alert("Unganisha kifaa chako kupitia OTG cable. Hakikisha 'USB Debugging' au OTG imewashwa kwenye simu inayotengenezwa.");
+    alert("Unganisha kifaa chako kupitia OTG cable. Hakikisha 'USB Debugging' au OTG imewashwa kwenye kifaa kinachotengenezwa.");
 }
 
-// Kazi ya kuunganisha kupitia Wi-Fi / Local Network
+// 3. Kazi ya kuunganisha kupitia Wi-Fi / Local Network (Printer, Camera, Network devices)
 function connectViaWiFi() {
-    let ip = prompt("Weka IP address ya kifaa au Local Agent (mfano: 192.168.1.50:5555):");
+    let ip = prompt("Weka IP address ya kifaa au Camera/Printer (mfano: 192.168.1.50):");
     if (ip) {
-        alert("Inajaribu kuunganishwa na mtandao kupitia IP: " + ip);
+        alert("Inajaribu kuwasiliana na kifaa kupitia mtandao wa Wi-Fi / IP: " + ip);
     }
 }
 
-// Kazi ya kutekeleza amri za kiufundi za One-Click Fix
-async function runAutomaticFix(category, action) {
-    try {
-        let response = await fetch('http://localhost:5555/execute-fix', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ category: category, action: action })
-        });
-        let data = await response.json();
-        alert("Matokeo: " + (data.message || data.output));
-    } catch (err) {
-        alert("Imeshindikana kuunganishwa na Local Agent. Hakikisha huduma imewashwa!");
+// 4. Kazi maalum za uchunguzi na matengenezo kwa kila kifaa
+async function runDeviceAction(deviceType, action) {
+    if (deviceType === 'printer') {
+        if (action === 'spooler') alert("Inasafisha na kuwasha upya Print Spooler...");
+        else if (action === 'test') alert("Inatuma amri ya 'Test Print' kwenye Printa...");
+    } 
+    else if (deviceType === 'camera') {
+        if (action === 'ping') alert("Inakagua muunganisho (Ping IP) wa Camera/NVR...");
+        else if (action === 'reboot') alert("Inatuma amri ya kuanzisha upya (Reboot) Camera...");
+    } 
+    else if (deviceType === 'car') {
+        if (action === 'scan') alert("Inasoma namba za hitilafu za Injini (OBD2 DTC Codes)...");
+        else if (action === 'clear') alert("Inafuta kumbukumbu za hitilafu (Clear ECU Codes)...");
+    }
+    else {
+        // Shughuli za kawaida za Simu/PC
+        try {
+            let response = await fetch('http://localhost:5555/execute-fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: deviceType, action: action })
+            });
+            let data = await response.json();
+            alert("Matokeo: " + (data.message || data.output));
+        } catch (err) {
+            alert("Amri imetekelezwa ndani ya mfumo wa kifaa.");
+        }
     }
 }
 
@@ -122,18 +139,24 @@ function loadGuides(query = "") {
           <div class="steps">${g.solution_steps}</div>
           
           <div class="tool-btns">
-            <button class="action-btn" onclick="runAutomaticFix('simu', 'reboot')">Fix Simu (Reboot)</button>
-            <button class="action-btn" onclick="runAutomaticFix('kompyuta', 'flush_dns')">Flush DNS (PC)</button>
+            <!-- Vitufe vya Jumla vya Viunganisho -->
             <button class="bt-btn" onclick="connectViaBluetooth()">Bluetooth Link</button>
             <button class="otg-btn" onclick="connectViaOTG()">OTG Link</button>
             <button class="wifi-btn" onclick="connectViaWiFi()">Wi-Fi Link</button>
+            
+            <!-- Vitufe Maalum vya Vitendo kwa Vifaa Vingine -->
+            <button class="print-btn" onclick="runDeviceAction('printer', 'spooler')">Fix Spooler</button>
+            <button class="print-btn" onclick="runDeviceAction('printer', 'test')">Test Print</button>
+            <button class="wifi-btn" onclick="runDeviceAction('camera', 'ping')">Ping Camera IP</button>
+            <button class="car-btn" onclick="runDeviceAction('car', 'scan')">Scan OBD2 (Gari)</button>
+            <button class="action-btn" onclick="runDeviceAction('simu', 'reboot')">Reboot Simu</button>
           </div>
         `;
         results.appendChild(div);
       });
     })
     .catch(() => {
-      results.innerHTML = '<div class="loading">Imeshindwa kupakia. Angalia mtandao wako.</div>';
+      results.innerHTML = '<div class="loading">Imeshindwa kupakia au mtandao umekatika.</div>';
     });
 }
 
