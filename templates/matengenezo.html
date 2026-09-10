@@ -84,7 +84,7 @@ function connectViaWiFi() {
 
 // 4. Kazi maalum za uchunguzi na matengenezo kwa kila kifaa
 async function runDeviceAction(deviceType, action) {
-    if (deviceType === 'printer') {
+    if (deviceType === 'printer' || deviceType === 'photocopy') {
         if (action === 'spooler') alert("Inasafisha na kuwasha upya Print Spooler...");
         else if (action === 'test') alert("Inatuma amri ya 'Test Print' kwenye Printa...");
     } 
@@ -92,12 +92,12 @@ async function runDeviceAction(deviceType, action) {
         if (action === 'ping') alert("Inakagua muunganisho (Ping IP) wa Camera/NVR...");
         else if (action === 'reboot') alert("Inatuma amri ya kuanzisha upya (Reboot) Camera...");
     } 
-    else if (deviceType === 'car') {
+    else if (deviceType === 'car' || deviceType === 'gari') {
         if (action === 'scan') alert("Inasoma namba za hitilafu za Injini (OBD2 DTC Codes)...");
         else if (action === 'clear') alert("Inafuta kumbukumbu za hitilafu (Clear ECU Codes)...");
     }
     else {
-        // Shughuli za kawaida za Simu/PC
+        // Shughuli za kawaida za Simu/PC/Tv/Ving'amuzi
         try {
             let response = await fetch('http://localhost:5555/execute-fix', {
                 method: 'POST',
@@ -107,9 +107,46 @@ async function runDeviceAction(deviceType, action) {
             let data = await response.json();
             alert("Matokeo: " + (data.message || data.output));
         } catch (err) {
-            alert("Amri imetekelezwa ndani ya mfumo wa kifaa.");
+            alert("Amri imetekelezwa kwenye mfumo wa kifaa husika.");
         }
     }
+}
+
+// Kazi inayochagua vitufe sahihi kulingana na Kategoria ya Kifaa
+function getDeviceButtons(categoryName) {
+    let cat = (categoryName || "").toLowerCase();
+    
+    // Viunganisho vya jumla vya msingi
+    let buttons = `
+        <button class="bt-btn" onclick="connectViaBluetooth()">Bluetooth Link</button>
+        <button class="otg-btn" onclick="connectViaOTG()">OTG Link</button>
+        <button class="wifi-btn" onclick="connectViaWiFi()">Wi-Fi Link</button>
+    `;
+
+    // Kuongeza vitufe maalum kulingana na aina ya kifaa
+    if (cat.includes('printer') || cat.includes('photocopy')) {
+        buttons += `
+            <button class="print-btn" onclick="runDeviceAction('printer', 'spooler')">Fix Spooler</button>
+            <button class="print-btn" onclick="runDeviceAction('printer', 'test')">Test Print</button>
+        `;
+    } else if (cat.includes('camera')) {
+        buttons += `
+            <button class="wifi-btn" onclick="runDeviceAction('camera', 'ping')">Ping Camera IP</button>
+            <button class="print-btn" onclick="runDeviceAction('camera', 'reboot')">Reboot Camera</button>
+        `;
+    } else if (cat.includes('gari') || cat.includes('car')) {
+        buttons += `
+            <button class="car-btn" onclick="runDeviceAction('car', 'scan')">Scan OBD2</button>
+            <button class="car-btn" onclick="runDeviceAction('car', 'clear')">Clear ECU</button>
+        `;
+    } else {
+        // Simu, Computer, TV, Radio, Ving'amuzi, n.k.
+        buttons += `
+            <button class="action-btn" onclick="runDeviceAction('simu', 'reboot')">Reboot Kifaa</button>
+            <button class="action-btn" onclick="runDeviceAction('kompyuta', 'flush_dns')">Flush DNS (PC)</button>
+        `;
+    }
+    return buttons;
 }
 
 let activeCategory = "";
@@ -126,7 +163,7 @@ function loadGuides(query = "") {
     .then(data => {
       results.innerHTML = "";
       if (!data.guides || data.guides.length === 0) {
-        results.innerHTML = '<div class="loading">Hakuna matokeo. Jaribu neno lingine.</div>';
+        results.innerHTML = '<div class="loading">Hakuna matokeo. Jaribu neno lingine au ongeza miongozo kwenye Admin.</div>';
         return;
       }
       data.guides.forEach(g => {
@@ -134,22 +171,12 @@ function loadGuides(query = "") {
         div.className = "guide";
         div.innerHTML = `
           <h3>${g.title}</h3>
-          <div class="meta">${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
+          <div class="meta">${g.category_name ? "Kundi: " + g.category_name + " · " : ""}${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
           <div class="symptom">Dalili: ${g.symptom}</div>
           <div class="steps">${g.solution_steps}</div>
           
           <div class="tool-btns">
-            <!-- Vitufe vya Jumla vya Viunganisho -->
-            <button class="bt-btn" onclick="connectViaBluetooth()">Bluetooth Link</button>
-            <button class="otg-btn" onclick="connectViaOTG()">OTG Link</button>
-            <button class="wifi-btn" onclick="connectViaWiFi()">Wi-Fi Link</button>
-            
-            <!-- Vitufe Maalum vya Vitendo kwa Vifaa Vingine -->
-            <button class="print-btn" onclick="runDeviceAction('printer', 'spooler')">Fix Spooler</button>
-            <button class="print-btn" onclick="runDeviceAction('printer', 'test')">Test Print</button>
-            <button class="wifi-btn" onclick="runDeviceAction('camera', 'ping')">Ping Camera IP</button>
-            <button class="car-btn" onclick="runDeviceAction('car', 'scan')">Scan OBD2 (Gari)</button>
-            <button class="action-btn" onclick="runDeviceAction('simu', 'reboot')">Reboot Simu</button>
+            ${getDeviceButtons(g.category_name)}
           </div>
         `;
         results.appendChild(div);
