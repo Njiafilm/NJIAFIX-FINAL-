@@ -75,10 +75,19 @@ function connectViaOTG() {
 }
 
 // 3. Kazi ya kuunganisha kupitia Wi-Fi / Local Network (Printer, Camera, Network devices)
-function connectViaWiFi() {
-    let ip = prompt("Weka IP address ya kifaa au Camera/Printer (mfano: 192.168.1.50):");
-    if (ip) {
-        alert("Inajaribu kuwasiliana na kifaa kupitia mtandao wa Wi-Fi / IP: " + ip);
+async function connectViaWiFi() {
+    let ipAddress = prompt("Weka IP address ya kifaa au Camera/Printer (mfano: 192.168.1.50):");
+    if (!ipAddress) return;
+
+    try {
+        let response = await fetch(`http://${ipAddress}/api/status`, {
+            method: 'GET',
+            mode: 'no-cors' // Inasaidia kuzuia vizuizi vya mtandao wa ndani (CORS)
+        });
+        alert("Kifaa kimeitikia vizuri kupitia IP: " + ipAddress);
+    } catch (error) {
+        alert("Imeshindikana kuunganisha na kifaa. Hakikisha IP ni sahihi na mpo mtandao mmoja.");
+        console.error(error);
     }
 }
 
