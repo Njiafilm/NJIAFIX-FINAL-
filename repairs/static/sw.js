@@ -2,11 +2,11 @@ const CACHE_NAME = 'njiafix-cache-v1';
 const urlsToCache = [
   '/',
   '/matengenezo/',
-  '/static/css/style.css', // Badilisha kama una faili maalum la CSS
-  '/static/js/main.js',   // Badilisha kama una faili maalum la JS
+  '/static/logo.png',
+  '/static/manifest.json'
 ];
 
-// Wakati wa kusakinisha Service Worker
+// Wakati wa kusakinisha Service Worker na kuhifadhi rasilimali muhimu
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -14,15 +14,42 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
   );
+  self.skipWaiting();
 });
 
-// Kusikiliza maombi ya mtandao na kutoa huduma hataukiwa offline
+// Kusafisha cache za zamani wakati app inapojisasisha
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clientsClaim();
+});
+
+// Kusikiliza maombi ya mtandao na kutoa huduma hata ukiwa offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Kama ipo kwenye cache, irudishe; kama haipo, ichekechoe mtandaoni
-        return response || fetch(event.request);
+        // Kama ipo kwenye cache, irudishe; kama haipo, ichekechoe mtandaoni na kuiweka kwenye akiba
+        return response || fetch(event.request).then((fetchResponse) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, fetchResponse.clone());
+            return fetchResponse;
+          });
+        }).catch(() => {
+          // Kama hakuna mtandao na faili halipo kwenye cache, unaweza kurudisha ukurasa mkuu wa Offline
+          if (event.request.mode === 'navigate') {
+            return caches.match('/');
+          }
+        });
       })
   );
 });
