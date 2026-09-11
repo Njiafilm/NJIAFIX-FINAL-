@@ -29,6 +29,7 @@
   .car-btn { background: #e76f51; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .print-btn { background: #457b9d; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
   .loading { text-align: center; padding: 20px; opacity: 0.7; }
+  .offline-banner { background: #e07a5f; color: #fff; padding: 8px; text-align: center; font-size: 13px; margin-bottom: 12px; border-radius: 6px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -103,7 +104,7 @@ async function connectViaWiFi() {
     }
 }
 
-// 4. Kazi mpya ya kuwasha upya (Reboot) Camera kupitia IP yake
+// 4. Kazi ya kuwasha upya (Reboot) Camera kupitia IP yake
 async function rebootNetworkCamera(ipAddress) {
     try {
         let responseUrl = `http://${ipAddress}/cgi-bin/hopper?action=reboot`;
@@ -188,6 +189,32 @@ function getDeviceButtons(categoryName) {
 
 let activeCategory = "";
 
+function displayGuides(guides, isOffline = false) {
+  const results = document.getElementById("results");
+  results.innerHTML = isOffline ? '<div class="offline-banner">Upo Offline - Unatumia kumbukumbu zilizohifadhiwa kwenye simu</div>' : '';
+  
+  if (!guides || guides.length === 0) {
+    results.innerHTML += '<div class="loading">Hakuna matokeo yaliyopatikana.</div>';
+    return;
+  }
+
+  guides.forEach(g => {
+    const div = document.createElement("div");
+    div.className = "guide";
+    div.innerHTML = `
+      <h3>${g.title}</h3>
+      <div class="meta">${g.category_name ? "Kundi: " + g.category_name + " · " : ""}${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
+      <div class="symptom">Dalili: ${g.symptom}</div>
+      <div class="steps">${g.solution_steps}</div>
+      
+      <div class="tool-btns">
+        ${getDeviceButtons(g.category_name)}
+      </div>
+    `;
+    results.appendChild(div);
+  });
+}
+
 function loadGuides(query = "") {
   const results = document.getElementById("results");
   results.innerHTML = '<div class="loading">Inapakia...</div>';
@@ -195,32 +222,31 @@ function loadGuides(query = "") {
   if (activeCategory) url += "category_id=" + activeCategory + "&";
   if (query) url += "q=" + encodeURIComponent(query);
 
+  // Jaribu kupata data kupitia mtandao kwanza
   fetch(url)
     .then(r => r.json())
     .then(data => {
-      results.innerHTML = "";
-      if (!data.guides || data.guides.length === 0) {
-        results.innerHTML = '<div class="loading">Hakuna matokeo. Jaribu neno lingine au ongeza miongozo kwenye Admin.</div>';
-        return;
+      if (data.guides) {
+        // Hifadhi kwenye LocalStorage kwa ajili ya matumizi ya Offline
+        localStorage.setItem('cached_guides_' + activeCategory, JSON.stringify(data.guides));
+        displayGuides(data.guides, false);
       }
-      data.guides.forEach(g => {
-        const div = document.createElement("div");
-        div.className = "guide";
-        div.innerHTML = `
-          <h3>${g.title}</h3>
-          <div class="meta">${g.category_name ? "Kundi: " + g.category_name + " · " : ""}${g.brand ? g.brand + " · " : ""}Ugumu: ${g.difficulty}</div>
-          <div class="symptom">Dalili: ${g.symptom}</div>
-          <div class="steps">${g.solution_steps}</div>
-          
-          <div class="tool-btns">
-            ${getDeviceButtons(g.category_name)}
-          </div>
-        `;
-        results.appendChild(div);
-      });
     })
     .catch(() => {
-      results.innerHTML = '<div class="loading">Imeshindwa kupakia au mtandao umekatika.</div>';
+      // Kama mtandao umekatika, tumia data zilizohifadhiwa kwenye simu
+      let savedData = localStorage.getItem('cached_guides_' + activeCategory);
+      if (savedData) {
+        let guides = JSON.parse(savedData);
+        if (query) {
+          guides = guides.filter(g => 
+            g.title.toLowerCase().includes(query.toLowerCase()) || 
+            g.symptom.toLowerCase().includes(query.toLowerCase())
+          );
+        }
+        displayGuides(guides, true);
+      } else {
+        results.innerHTML = '<div class="loading">Hakuna mtandao na hakuna kumbukumbu za akiba zilizohifadhiwa.</div>';
+      }
     });
 }
 
