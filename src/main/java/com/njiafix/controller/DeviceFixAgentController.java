@@ -1,5 +1,7 @@
 package com.njiafix.controller;
 
+import com.njiafix.service.DiagnosticServiceManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,45 +12,53 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*") // sawa na flask_cors CORS(app) - punguza hii kwenye production
+@CrossOrigin(origins = "*")
 public class DeviceFixAgentController {
+
+    @Autowired
+    private DiagnosticServiceManager diagnosticServiceManager;
 
     @PostMapping("/execute-fix")
     public ResponseEntity<Map<String, Object>> executeFix(@RequestBody Map<String, String> data) {
-        String deviceCategory = data.get("category"); // simu, kompyuta, tv, decoder
-        String action = data.get("action");
+        String deviceCategory = data.get("category"); // simu, kompyuta, decoder, camera, obd, printer, router
+        String action = data.get("action");           // scan, fix, reboot, flush_dns, n.k.
 
+        Map<String, Object> body = new LinkedHashMap<>();
+
+        // 1. Jaribu kupitia huduma maalum za uchunguzi na "Single Click Fix"
+        String diagnosticResult = diagnosticServiceManager.executeSpecialAction(deviceCategory, action);
+        if (diagnosticResult != null) {
+            body.put("status", "success");
+            body.put("category", deviceCategory);
+            body.put("action", action);
+            body.put("output", diagnosticResult);
+            return ResponseEntity.ok(body);
+        }
+
+        // 2. Kama sio huduma maalum, tumia mfumo wa amri za OS (ProcessBuilder)
         List<String> cmd = null;
 
-        // 1. Marekebisho ya Simu (Android kupitia ADB)
         if ("simu".equals(deviceCategory)) {
             if ("reboot".equals(action)) {
                 cmd = List.of("adb", "reboot");
             } else if ("clear_cache".equals(action)) {
                 cmd = List.of("adb", "shell", "pm", "trim-caches", "999G");
             }
-
-            // 2. Marekebisho ya Kompyuta (Windows network/system commands)
         } else if ("kompyuta".equals(deviceCategory)) {
             if ("flush_dns".equals(action)) {
                 cmd = List.of("ipconfig", "/flushdns");
             } else if ("reset_network".equals(action)) {
                 cmd = List.of("netsh", "winsock", "reset");
             }
-
-            // 3. Ving'amuzi / Sat (Kupitia Serial/COM ports au IP commands)
         } else if ("decoder".equals(deviceCategory)) {
             if ("reboot_sat".equals(action)) {
-                // Amri maalum ya serial port au telnet kwenda kwenye decoder
-                // TODO: ongeza logic halisi hapa
+                // Weka amri au mantiki ya decoder hapa
             }
         }
 
-        Map<String, Object> body = new LinkedHashMap<>();
-
         if (cmd == null) {
             body.put("status", "error");
-            body.put("message", "Amri haijatambuliwa kwa kifaa hiki.");
+            body.put("message", "Amri au kategoria haijatambuliwa kwa kifaa hiki.");
             return ResponseEntity.badRequest().body(body);
         }
 
