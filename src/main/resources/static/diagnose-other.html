@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<title>NjiaFix - Printer / Camera / Gari</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+    h1 { color: #38bdf8; font-size: 22px; }
+    h2 { color: #ffd60a; font-size: 18px; margin-top: 32px; }
+    .card { background: #1e293b; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: none; margin-bottom: 10px; box-sizing: border-box; }
+    button { background: #38bdf8; border: none; color: #0f172a; font-weight: bold; padding: 10px 16px; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #0ea5e9; }
+    .fix-btn { background: #22c55e; color: white; padding: 6px 12px; border-radius: 6px; }
+    .fix-btn:hover { background: #16a34a; }
+    .issue { background: #334155; border-radius: 8px; padding: 12px; margin: 10px 0; }
+    .guide-box { background: #0f172a; border-radius: 6px; padding: 10px; margin-top: 8px; white-space: pre-line; font-size: 14px; line-height: 1.5; }
+    .guide-title { color: #ffd60a; font-weight: bold; }
+    .severity-high { border-left: 4px solid #ef4444; }
+    .severity-medium { border-left: 4px solid #f59e0b; }
+    .severity-low { border-left: 4px solid #38bdf8; }
+</style>
+</head>
+<body>
+
+<h1>🖨️ 📷 🚗 NjiaFix - Uchunguzi wa Printer, Camera, na Gari</h1>
+
+<!-- PRINTER -->
+<div class="card">
+    <h2>🖨️ Printer / Photocopy</h2>
+    <button onclick="diagnoseLocalPrinters()">Chunguza Printer za USB/Kompyuta Hii</button>
+    <div id="localPrinterResults"></div>
+
+    <hr style="margin: 16px 0; border-color: #334155;">
+
+    <input type="text" id="printerIp" placeholder="IP ya Printer ya Mtandao (mfano: 192.168.1.50)">
+    <button onclick="diagnoseNetworkPrinter()">Chunguza Printer ya Mtandao</button>
+    <div id="networkPrinterResults"></div>
+</div>
+
+<!-- CAMERA -->
+<div class="card">
+    <h2>📷 Camera / CCTV</h2>
+    <input type="text" id="cameraIp" placeholder="IP ya Camera (mfano: 192.168.1.60)">
+    <button onclick="diagnoseCamera()">Chunguza Camera</button>
+    <div id="cameraResults"></div>
+</div>
+
+<!-- CAR -->
+<div class="card">
+    <h2>🚗 Gari (OBD2 kupitia Bluetooth)</h2>
+    <button onclick="loadObdPorts()">Tafuta ELM327 Adapter Zilizooanishwa (Paired)</button>
+    <select id="obdPortSelect"><option>Bonyeza kitufe hapo juu kwanza</option></select>
+    <button onclick="diagnoseCar()">Soma Hitilafu za Gari (DTC)</button>
+    <div id="carResults"></div>
+</div>
+
+<!-- PC YA MTEJA -->
+<div class="card">
+    <h2>🖥️ PC ya Mteja (kupitia PcAgent)</h2>
+    <p style="font-size:13px; color:#94a3b8;">Hakikisha PcAgent inaendesha kwenye kompyuta ya mteja (java PcAgent) na mko kwenye mtandao mmoja.</p>
+    <input type="text" id="pcIp" placeholder="IP ya kompyuta ya mteja (mfano: 192.168.1.70)">
+    <button onclick="diagnosePc()">Chunguza PC ya Mteja</button>
+    <div id="pcResults"></div>
+</div>
+
+<!-- ROUTER -->
+<div class="card">
+    <h2>📶 Router</h2>
+    <input type="text" id="routerIp" placeholder="IP ya Router (mfano: 192.168.1.1)">
+    <button onclick="diagnoseGeneric('router', 'routerIp', 'routerResults')">Chunguza Router</button>
+    <div id="routerResults"></div>
+</div>
+
+<!-- UPS/INVERTER -->
+<div class="card">
+    <h2>🔋 UPS / Inverter</h2>
+    <input type="text" id="upsIp" placeholder="IP ya UPS/Inverter">
+    <button onclick="diagnoseGeneric('ups', 'upsIp', 'upsResults')">Chunguza UPS/Inverter</button>
+    <div id="upsResults"></div>
+</div>
+
+<!-- SOLAR -->
+<div class="card">
+    <h2>☀️ Solar System</h2>
+    <input type="text" id="solarIp" placeholder="IP ya Solar Monitoring Unit">
+    <button onclick="diagnoseGeneric('solar', 'solarIp', 'solarResults')">Chunguza Solar System</button>
+    <div id="solarResults"></div>
+</div>
+
+<script>
+async function renderIssues(containerId, issues, target) {
+    const container = document.getElementById(containerId);
+    if (!issues || issues.length === 0) {
+        container.innerHTML = "<p>✅ Hakuna tatizo lililogundulika.</p>";
+        return;
+    }
+
+    let html = "";
+    for (const issue of issues) {
+        const guide = issue.guide;
+        const guideHtml = guide ? `
+            <div class="guide-box">
+                <div class="guide-title">📋 ${guide.title} (Ugumu: ${guide.difficulty})</div>
+                ${guide.solution_steps}
+            </div>` : `<div class="guide-box">Hakuna guide iliyounganishwa bado.</div>`;
+
+        const actionBtn = issue.action
+            ? `<button class="fix-btn" onclick="fixIssue('${issue.category}', '${issue.action}', '${target || ''}', this)">Rekebisha</button>`
+            : "";
+
+        html += `
+            <div class="issue severity-${issue.severity}">
+                <strong>${issue.code}</strong> ${actionBtn}<br>
+                <span>${issue.description}</span>
+                ${guideHtml}
+            </div>`;
+    }
+    container.innerHTML = html;
+}
+
+async function fixIssue(category, action, target, buttonEl) {
+    buttonEl.disabled = true;
+    buttonEl.textContent = "Inarekebisha...";
+    try {
+        let res;
+        if (category === "car") {
+            // Gari inahitaji COM port maalum - endpoint tofauti
+            res = await fetch("/api/obd/clear-dtc", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ port: target })
+            });
+        } else {
+            res = await fetch("/execute-fix", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ category, action, target })
+            });
+        }
+        const data = await res.json();
+        buttonEl.textContent = data.status === "success" ? "✅ Imekamilika" : "❌ Imeshindikana";
+    } catch (err) {
+        buttonEl.textContent = "❌ Hitilafu";
+    }
+}
+
+// --- PRINTER ---
+async function diagnoseLocalPrinters() {
+    const container = document.getElementById("localPrinterResults");
+    container.innerHTML = "Inachunguza...";
+    try {
+        const res = await fetch("/api/diagnose/printer/local");
+        const data = await res.json();
+        if (data.printers.length === 0) {
+            container.innerHTML = "<p>Hakuna printer iliyosakinishwa kwenye kompyuta hii.</p>";
+            return;
+        }
+        let html = "";
+        for (const p of data.printers) {
+            html += `<h4>${p.name}</h4>`;
+            const div = document.createElement("div");
+            container.appendChild(div);
+        }
+        container.innerHTML = "";
+        for (const p of data.printers) {
+            const wrap = document.createElement("div");
+            wrap.innerHTML = `<h4>${p.name}</h4>`;
+            container.appendChild(wrap);
+            const issuesDiv = document.createElement("div");
+            container.appendChild(issuesDiv);
+            issuesDiv.id = "printer-" + p.name.replace(/\s/g, "_");
+            renderIssues(issuesDiv.id, p.issues, null);
+        }
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+
+async function diagnoseNetworkPrinter() {
+    const ip = document.getElementById("printerIp").value.trim();
+    if (!ip) return alert("Weka IP ya printer kwanza");
+    const container = document.getElementById("networkPrinterResults");
+    container.innerHTML = "Inachunguza...";
+    try {
+        const res = await fetch(`/api/diagnose/printer/network/${ip}`);
+        const data = await res.json();
+        renderIssues("networkPrinterResults", data.issues, ip);
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+
+// --- CAMERA ---
+async function diagnoseCamera() {
+    const ip = document.getElementById("cameraIp").value.trim();
+    if (!ip) return alert("Weka IP ya camera kwanza");
+    const container = document.getElementById("cameraResults");
+    container.innerHTML = "Inachunguza...";
+    try {
+        const res = await fetch(`/api/diagnose/camera/${ip}`);
+        const data = await res.json();
+        renderIssues("cameraResults", data.issues, ip);
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+
+// --- CAR ---
+async function loadObdPorts() {
+    const select = document.getElementById("obdPortSelect");
+    select.innerHTML = "<option>Inatafuta...</option>";
+    try {
+        const res = await fetch("/api/obd/ports");
+        const data = await res.json();
+        if (data.ports.length === 0) {
+            select.innerHTML = "<option>Hakuna adapter iliyopatikana - hakikisha imeoanishwa (paired)</option>";
+            return;
+        }
+        select.innerHTML = data.ports.map(p => `<option value="${p.split(" ")[0]}">${p}</option>`).join("");
+    } catch (err) {
+        select.innerHTML = "<option>Hitilafu: " + err.message + "</option>";
+    }
+}
+
+async function diagnoseCar() {
+    const port = document.getElementById("obdPortSelect").value;
+    const container = document.getElementById("carResults");
+    container.innerHTML = "Inasoma ECU... (chukua sekunde chache)";
+    try {
+        const res = await fetch(`/api/diagnose/car/${encodeURIComponent(port)}`);
+        const data = await res.json();
+        if (data.status !== "success") {
+            container.innerHTML = "Hitilafu: " + data.message;
+            return;
+        }
+        renderIssues("carResults", data.issues, port);
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+
+// --- PC YA MTEJA ---
+async function diagnosePc() {
+    const ip = document.getElementById("pcIp").value.trim();
+    if (!ip) return alert("Weka IP ya kompyuta ya mteja kwanza");
+    const container = document.getElementById("pcResults");
+    container.innerHTML = "Inachunguza...";
+    try {
+        const res = await fetch(`/api/diagnose/pc/${ip}`);
+        const data = await res.json();
+        renderIssues("pcResults", data.issues, ip);
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+
+// --- ROUTER / UPS / SOLAR (zote zinatumia muundo mmoja) ---
+async function diagnoseGeneric(category, inputId, resultId) {
+    const ip = document.getElementById(inputId).value.trim();
+    if (!ip) return alert("Weka IP kwanza");
+    const container = document.getElementById(resultId);
+    container.innerHTML = "Inachunguza...";
+    try {
+        const res = await fetch(`/api/diagnose/${category}/${ip}`);
+        const data = await res.json();
+        renderIssues(resultId, data.issues, ip);
+    } catch (err) {
+        container.innerHTML = "Hitilafu: " + err.message;
+    }
+}
+</script>
+
+</body>
+</html>
