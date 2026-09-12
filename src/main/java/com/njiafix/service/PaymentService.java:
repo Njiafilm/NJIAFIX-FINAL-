@@ -1,0 +1,40 @@
+package com.njiafix.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+
+@Service
+public class PaymentService {
+
+    // Unaweza kuunganisha Repository yako hapa (mfano: PaymentRepository)
+    // private final PaymentRepository paymentRepository;
+
+    @Transactional
+    public boolean verifyAndMarkAsPaid(String companyNumber, String phoneNumber, double amount) {
+        // 1. Hakikisha namba ya kampuni ni sahihi (mfano: 560500)
+        if (!"560500".equals(companyNumber)) {
+            System.err.println("Hitilafu: Namba ya kampuni si sahihi -> " + companyNumber);
+            return false;
+        }
+
+        // 2. Hakikisha namba ya simu ipo (inatumika kama kumbukumbu ya malipo - Reference)
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            System.err.println("Hitilafu: Namba ya simu ya kumbukumbu haipo.");
+            return false;
+        }
+
+        // 3. Tekeleza mantiki ya kuhifadhi au kusasisha hali ya malipo kuwa PAID kwenye database
+        System.out.println("MALIPO YAMEFANIKIWA:");
+        System.out.println("- Kampuni: " + companyNumber);
+        System.out.println("- Kumbukumbu (Namba ya Simu): " + phoneNumber);
+        System.out.println("- Kiasi: TZS " + amount);
+        System.out.println("- Hali: PAID (Imelipwa) tarehe " + LocalDateTime.now());
+
+        // Hapa ndipo unaweza kuandika code za JPA kuhifadhi kwenye database:
+        // PaymentTx tx = new PaymentTx(companyNumber, phoneNumber, amount, "PAID");
+        // paymentRepository.save(tx);
+
+        return true;
+    }
+}
