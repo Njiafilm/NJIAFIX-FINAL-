@@ -1,0 +1,53 @@
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+public class PaymentSimulator {
+
+    public static void simulatePayment(String apiUrl, String companyNumber, String phoneNumber, double amount) {
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            
+            // Weka njia ya ombi kuwa POST
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            // Unda ujumbe wa JSON wenye taarifa za malipo
+            String jsonInputString = String.format(
+                "{\"companyNumber\": \"%s\", \"referenceNumber\": \"%s\", \"amount\": %.2f, \"status\": \"PAID\"}",
+                companyNumber, phoneNumber, amount
+            );
+
+            // Tuma data kwenye mtandao
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            // Angalia majibu kutoka kwenye seva
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.Code.out.println("Malipo yamerekodiwa na kuwekwa kuwa yamelipwa mafanikio!");
+            } else {
+                System.out.println("Imeshindwa kutuma malipo. Response code: " + responseCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        // Mfano wa matumizi:
+        String endpointUrl = "http://localhost:5555/api/payments/callback"; // Badilisha iwe URL yako
+        String nambaYaKampuni = "650880";
+        String nambaYaSimu = "255712345678"; // Kumbukumbu namba (Namba ya simu)
+        double kiasi = 10000.0;
+
+        simulatePayment(endpointUrl, nambaYaKampuni, nambaYaSimu, kiasi);
+    }
+}
