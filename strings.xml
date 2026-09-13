@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">NjiaFix</string>
+    <string name="settings_title">Mipangilio ya Seva</string>
+    <string name="server_url_hint">mfano: http://192.168.1.10:5555 au https://njiafix.onrender.com</string>
+    <string name="save">Hifadhi na Ufungue</string>
+    <string name="menu_settings">Mipangilio</string>
+    <string name="menu_reload">Onyesha Upya</string>
+    <string name="no_connection_title">Haiwezi kuunganishwa na seva</string>
+    <string name="no_connection_msg">Hakikisha simu yako iko kwenye mtandao/WiFi sahihi (au hotspot ya kompyuta inayoendesha NjiaFix), kisha jaribu tena.</string>
+    <string name="retry">Jaribu Tena</string>
+    <string name="change_server">Badilisha Anwani ya Seva</string>
+</resources>
