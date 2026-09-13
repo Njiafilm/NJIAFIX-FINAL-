@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NjiaFix - Simu / Printer / Camera / Gari</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px;margin:0}
+h1{color:#38bdf8;font-size:20px}h2{color:#ffd60a;font-size:17px;margin:0 0 10px}
+.card{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px}
+input,select{width:100%;padding:12px;border-radius:8px;border:none;margin-bottom:10px;font-size:15px}
+button{border:none;padding:10px 14px;border-radius:8px;font-weight:bold;cursor:pointer;font-size:13px}
+.btn-blue{background:#38bdf8;color:#0f172a}.btn-green{background:#22c55e;color:#fff}
+.btn-purple{background:#a855f7;color:#fff}.btn-red{background:#ef4444;color:#fff}
+.btn-orange{background:#f59e0b;color:#0f172a}.btn-teal{background:#14b8a6;color:#0f172a}
+.btn-full{width:100%;margin-top:6px}.row-btns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.row-btns button{flex:1;min-width:100px}label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
+.hint{font-size:13px;color:#94a3b8;margin:0 0 10px}
+.success{background:#065f46;color:#a7f3d0;padding:12px;border-radius:8px;margin-top:10px;font-size:14px}
+.error{background:#7f1d1d;color:#fecaca;padding:12px;border-radius:8px;margin-top:10px;font-size:14px}
+.warning{background:#7f1d1d;color:#fecaca;padding:10px;border-radius:8px;font-size:13px;margin:10px 0}
+.guide{background:#0f172a;border-radius:8px;padding:12px;margin-top:10px;white-space:pre-line;font-size:13px;line-height:1.55}
+.guide-title{color:#ffd60a;font-weight:bold;margin-bottom:6px;font-size:14px}
+.section{border-radius:10px;padding:14px;margin-top:12px}
+.sec-pay{background:#064e3b;border:1px solid #10b981}.sec-unlock{background:#1e1b4b;border:1px solid #7c3aed}
+.sec-passkey{background:#422006;border:1px solid #d97706}.sec-tools{background:#0c4a6e;border:1px solid #0ea5e9}
+.sec-title{margin:0 0 8px;font-size:15px}.sec-pay .sec-title{color:#6ee7b7}
+.sec-unlock .sec-title{color:#c4b5fd}.sec-passkey .sec-title{color:#fbbf24}.sec-tools .sec-title{color:#7dd3fc}
+.step-num{display:inline-block;background:#334155;color:#ffd60a;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-weight:bold;font-size:12px;margin-right:6px}
+.issue{background:#334155;border-radius:8px;padding:12px;margin:10px 0}
+.severity-high{border-left:4px solid #ef4444}.severity-medium{border-left:4px solid #f59e0b}.severity-low{border-left:4px solid #38bdf8}
+.status-ok{color:#4ade80;font-weight:bold}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:bold}
+.badge-ok{background:#065f46;color:#6ee7b7}.badge-no{background:#7f1d1d;color:#fecaca}.badge-warn{background:#78350f;color:#fde68a}
+.tool-box{background:#082f49;border-radius:8px;padding:12px;margin-top:10px;border:1px solid #0369a1}
+.tool-box h4{margin:0 0 8px;color:#7dd3fc;font-size:14px}
+hr{border:none;border-top:1px solid #334155;margin:14px 0}code{background:#1e293b;padding:1px 5px;border-radius:3px;font-size:12px}
+</style>
+</head>
+<body>
+<h1>📱 🖨️ 📷 🚗 NjiaFix</h1>
+<div class="card">
+<h2>📱 Simu za Mkononi</h2>
+<p class="hint">USB + Debugging, unlock, FRP, flash tools + amri za haraka.</p>
+<div class="row-btns">
+<button class="btn-purple" onclick="location.href='/diagnose.html'">🔍 Chunguza</button>
+<button class="btn-purple" onclick="runPhoneAction('reboot')">🔄 Reboot</button>
+<button class="btn-purple" onclick="runPhoneAction('clear_cache')">🧹 Cache</button>
+<button class="btn-purple" onclick="runPhoneAction('toggle_wifi')">📶 Wi-Fi</button>
+</div>
+
+<div class="section sec-pay">
+<div class="sec-title"><span class="step-num">1</span> 💳 Malipo (hiari)</div>
+<label>Namba ya Kampuni</label><input type="text" id="companyNumber" value="650880">
+<label>Kumbukumbu Namba</label><input type="text" id="paymentRef" placeholder="8H7K2L9M3P">
+<label>Namba ya Mteja</label><input type="text" id="customerPhone" placeholder="0712 345 678">
+<button class="btn-green btn-full" id="payBtn" onclick="completePayment()">✅ Thibitisha Malipo</button>
+<div id="paymentResult"></div>
+</div>
+
+<div class="section sec-unlock">
+<div class="sec-title"><span class="step-num">2</span> 🔓 Unlock Screen</div>
+<button class="btn-red btn-full" onclick="showGuide('unlock','google')">🌐 Google Find My <span class="badge badge-no">Net</span></button>
+<button class="btn-red btn-full" onclick="showGuide('unlock','samsung')">📱 Samsung Find My <span class="badge badge-no">Net</span></button>
+<button class="btn-red btn-full" onclick="showGuide('unlock','factory')">⚠️ Factory Reset <span class="badge badge-ok">Offline</span></button>
+<div id="unlockGuide"></div>
+</div>
+
+<div class="section sec-passkey">
+<div class="sec-title"><span class="step-num">3</span> 🔑 Ondoa Passkey</div>
+<button class="btn-orange btn-full" onclick="showGuide('passkey','settings')">⚙️ Settings <span class="badge badge-ok">Offline</span></button>
+<button class="btn-orange btn-full" onclick="showGuide('passkey','google')">🌐 Google Account <span class="badge badge-no">Net</span></button>
+<button class="btn-orange btn-full" onclick="showGuide('passkey','adb')">💻 ADB <span class="badge badge-ok">Offline</span></button>
+<div id="passkeyGuide"></div>
+</div>
+
+<div class="section sec-tools">
+<div class="sec-title"><span class="step-num">4</span> 🛠️ Software Tools + Amri za Haraka</div>
+<div class="warning">⚠️ Thibitisha umiliki (risiti/IMEI) kabla ya FRP/unlock.</div>
+
+<div class="tool-box">
+<h4>1. ADB + Fastboot <span class="badge badge-ok">Offline</span> — Simu zote</h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="runAdb('devices')">adb devices</button>
+<button class="btn-teal" onclick="runAdb('reboot')">reboot</button>
+<button class="btn-teal" onclick="runAdb('bootloader')">fastboot</button>
+<button class="btn-teal" onclick="runAdb('recovery')">recovery</button>
+</div>
+<div class="row-btns">
+<button class="btn-teal" onclick="runAdb('cache')">wipe cache</button>
+<button class="btn-teal" onclick="runAdb('battery')">battery</button>
+<button class="btn-teal" onclick="runAdb('info')">device info</button>
+<button class="btn-teal" onclick="runAdb('sideload')">sideload</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>2. Odin <span class="badge badge-ok">Offline</span> — Samsung zote (A/M/S/Note/Tab)</h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showOdin('download')">Download Mode</button>
+<button class="btn-teal" onclick="showOdin('flash')">Flash Firmware</button>
+<button class="btn-teal" onclick="showOdin('frp')">Baada ya FRP</button>
+<button class="btn-teal" onclick="showOdin('softbrick')">Soft Brick</button>
+</div>
+<div class="row-btns">
+<button class="btn-teal" onclick="showOdin('bl')">BL slot</button>
+<button class="btn-teal" onclick="showOdin('ap')">AP slot</button>
+<button class="btn-teal" onclick="showOdin('csc')">CSC slot</button>
+<button class="btn-teal" onclick="showOdin('tips')">Tips model</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>3. SP Flash Tool <span class="badge badge-ok">Offline</span> — Tecno/Infinix/Itel/MTK</h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showSp('driver')">Driver VCOM</button>
+<button class="btn-teal" onclick="showSp('scatter')">Scatter</button>
+<button class="btn-teal" onclick="showSp('download')">Download Only</button>
+<button class="btn-teal" onclick="showSp('format')">Format All ⚠️</button>
+</div>
+<div class="row-btns">
+<button class="btn-teal" onclick="showSp('connect')">Unganisha</button>
+<button class="btn-teal" onclick="showSp('error')">Hitilafu</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>4. Mi Flash <span class="badge badge-warn">Sehemu</span> — Xiaomi/Redmi/POCO</h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showMi('unlock')">Mi Unlock</button>
+<button class="btn-teal" onclick="showMi('fastboot')">Fastboot</button>
+<button class="btn-teal" onclick="showMi('flash')">Mi Flash ROM</button>
+<button class="btn-teal" onclick="showMi('wait')">Waiting</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>5. Miracle / Thunder <span class="badge badge-ok">Offline</span></h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showBox('frp')">FRP Remove</button>
+<button class="btn-teal" onclick="showBox('unlock')">Unlock</button>
+<button class="btn-teal" onclick="showBox('testpoint')">Test Point</button>
+<button class="btn-teal" onclick="showBox('brand')">Brand</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>6. UMT / DFT / Chimera <span class="badge badge-ok">Offline</span></h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showPro('chimera')">Chimera</button>
+<button class="btn-teal" onclick="showPro('umt')">UMT</button>
+<button class="btn-teal" onclick="showPro('dft')">DFT Pro</button>
+<button class="btn-teal" onclick="showPro('imei')">IMEI ⚠️</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>7. SamFw <span class="badge badge-warn">Sehemu</span> — Samsung</h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showSam('frp')">FRP</button>
+<button class="btn-teal" onclick="showSam('adb')">Enable ADB</button>
+<button class="btn-teal" onclick="showSam('mtp')">MTP</button>
+<button class="btn-teal" onclick="showSam('react')">Reactivation</button>
+</div>
+</div>
+
+<div class="tool-box">
+<h4>8. Find My <span class="badge badge-no">Net</span></h4>
+<div class="row-btns">
+<button class="btn-teal" onclick="showGuide('unlock','google')">Google Find My</button>
+<button class="btn-teal" onclick="showGuide('unlock','samsung')">Samsung Find My</button>
+</div>
+</div>
+
+<div id="toolGuide"></div>
+<div id="adbCmdResult"></div>
+</div>
+<div id="phoneResults"></div>
+</div>
+
+<div class="card"><h2>🖨️ Printer</h2>
+<button class="btn-blue btn-full" onclick="diagnoseLocalPrinters()">Chunguza USB Printers</button>
+<div id="localPrinterResults"></div><hr>
+<input type="text" id="printerIp" placeholder="IP Printer">
+<button class="btn-blue btn-full" onclick="diagnoseNetworkPrinter()">Network Printer</button>
+<div id="networkPrinterResults"></div></div>
+
+<div class="card"><h2>📷 Camera</h2>
+<input type="text" id="cameraIp" placeholder="IP Camera">
+<button class="btn-blue btn-full" onclick="diagnoseCamera()">Chunguza Camera</button>
+<div id="cameraResults"></div></div>
+
+<div class="card"><h2>🚗 Gari (OBD2)</h2>
+<button class="btn-blue btn-full" onclick="loadObdPorts()">Tafuta ELM327</button>
+<select id="obdPortSelect"><option>Bonyeza hapo juu</option></select>
+<button class="btn-blue btn-full" onclick="diagnoseCar()">Soma DTC</button>
+<div id="carResults"></div></div>
+
+<div class="card"><h2>🖥️ PC ya Mteja</h2>
+<input type="text" id="pcIp" placeholder="IP PC">
+<button class="btn-blue btn-full" onclick="diagnosePc()">Chunguza PC</button>
+<div id="pcResults"></div></div>
+
+<div class="card"><h2>📶 Router / UPS / Solar / TV</h2>
+<input type="text" id="routerIp" placeholder="IP Router">
+<button class="btn-blue btn-full" onclick="diagnoseGeneric('router','routerIp','routerResults')">Router</button>
+<div id="routerResults"></div><hr>
+<input type="text" id="upsIp" placeholder="IP UPS">
+<button class="btn-blue btn-full" onclick="diagnoseGeneric('ups','upsIp','upsResults')">UPS</button>
+<div id="upsResults"></div><hr>
+<input type="text" id="solarIp" placeholder="IP Solar">
+<button class="btn-blue btn-full" onclick="diagnoseGeneric('solar','solarIp','solarResults')">Solar</button>
+<div id="solarResults"></div><hr>
+<input type="text" id="tvIp" placeholder="IP TV">
+<button class="btn-blue btn-full" onclick="diagnoseGeneric('tv','tvIp','tvResults')">TV</button>
+<div id="tvResults"></div></div>
+
+<script>
+function show(html){document.getElementById("toolGuide").innerHTML='<div class="guide">'+html+'</div>';}
+async function runAdb(cmd){
+  const el=document.getElementById("adbCmdResult");
+  const cmds={devices:"adb devices",reboot:"adb reboot",bootloader:"adb reboot bootloader",recovery:"adb reboot recovery",cache:"adb shell pm trim-caches 999G",battery:"adb shell dumpsys battery",info:"adb shell getprop",sideload:"adb reboot sideload"};
+  const line=cmds[cmd]||cmd; el.innerHTML="...";
+  const actionMap={devices:"adb_devices",reboot:"reboot",bootloader:"reboot_bootloader",recovery:"reboot_recovery",cache:"clear_cache",battery:"battery_info",info:"device_info"};
+  try{
+    const res=await fetch("/execute-fix",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({category:"simu",action:actionMap[cmd]||cmd})});
+    const data=await res.json();
+    if(data.status==="success") el.innerHTML='<div class="success">✅ <code>'+line+'</code><pre style="font-size:12px;white-space:pre-wrap;margin:6px 0 0">'+(data.output||"OK")+'</pre></div>';
+    else el.innerHTML='<div class="guide"><div class="guide-title">Amri</div><code>'+line+'</code>\n\nEndesha terminal. '+(data.message||"")+'</div>';
+  }catch(e){el.innerHTML='<div class="guide"><div class="guide-title">Amri</div><code>'+line+'</code>\n\nEndesha CMD/Terminal.</div>';}
+}
+function showOdin(q){
+  const m={download:{t:"Download Mode (Samsung zote)",b:"A/M: Vol Down+Vol Up + USB\nS/Note: Vol Down+Bixby+Power\nTab: Vol Down+Power\nZamani: Vol Down+Home+Power\n\nOdin inaona COM port."},
+  flash:{t:"Flash Firmware",b:"1. Firmware ya MODEL sahihi\n2. BL+AP+CP+CSC kwenye Odin\n3. Auto Reboot + F.Reset Time\n4. Start → PASS"},
+  frp:{t:"Baada ya FRP",b:"Flash HAIONDOI FRP kwenye Samsung mpya.\nMteja aingize Google account iliyokuwa kwenye simu.\nAu SamFw/Chimera (umiliki halali)."},
+  softbrick:{t:"Soft Brick",b:"Download Mode → flash firmware kamili.\nCable/driver issues → badilisha port + Samsung USB driver."},
+  bl:{t:"BL slot",b:"Bootloader – faili BL_xxx.tar"},ap:{t:"AP slot",b:"System – faili kubwa AP_xxx.tar"},
+  csc:{t:"CSC slot",b:"CSC = futa data | HOME_CSC = jaribu hifadhi data"},
+  tips:{t:"Tips Samsung zote",b:"Model: Settings→About\nFirmware=model+region\nOdin 3.14\nUsipunguze binary/SW REV"}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showSp(q){
+  const m={driver:{t:"Driver VCOM",b:"MediaTek PreLoader USB VCOM kwenye Device Manager."},
+  scatter:{t:"Scatter",b:"Faili MTK_xxx_scatter.txt kutoka firmware folder."},
+  download:{t:"Download Only",b:"Mode salama. Zima simu → Download → plug USB → OK kijani."},
+  format:{t:"Format All ⚠️",b:"Inaweza kufuta NVRAM/IMEI. Tumia tu ikiwa lazima."},
+  connect:{t:"Unganisha",b:"Simu imezimwa. PreLoader. Badilisha cable/port ikiwa haioni."},
+  error:{t:"Hitilafu",b:"0xC0010001=driver | 0x7D4=scatter | USB frequency=port 2.0"}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showMi(q){
+  const m={unlock:{t:"Mi Unlock",b:"Mi Account + OEM unlock + waiting 7-30 siku (intaneti). Inafuta data."},
+  fastboot:{t:"Fastboot",b:"Vol Down+Power au adb reboot bootloader"},
+  flash:{t:"Mi Flash",b:"Bootloader unlocked → fastboot ROM → Mi Flash"},
+  wait:{t:"Waiting",b:"Xiaomi inahitaji kusubiri. Bila net unlock haitafanyika."}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showBox(q){
+  const m={frp:{t:"FRP Remove",b:"Brand+model → connect → FRP Remove. Umiliki kwanza."},
+  unlock:{t:"Unlock",b:"Remove lock – model dependent."},
+  testpoint:{t:"Test Point",b:"Fungua board → short test-point → USB."},
+  brand:{t:"Brand",b:"Samsung, MTK (Tecno/Infinix/Itel), baadhi Qualcomm."}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showPro(q){
+  const m={chimera:{t:"Chimera",b:"Samsung FRP/unlock – dongle + wizard."},
+  umt:{t:"UMT",b:"MTK tab – FRP/Flash/Unlock."},dft:{t:"DFT Pro",b:"MTK/Qualcomm professional."},
+  imei:{t:"IMEI ⚠️",b:"Restore IMEI asli tu baada ya NVRAM loss. Kubadilisha IMEI ni haramu."}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showSam(q){
+  const m={frp:{t:"SamFw FRP",b:"Download/ADB mode → FRP Remove. Baadhi online."},
+  adb:{t:"Enable ADB",b:"SamFw inaweza kuwasha ADB → tumia NjiaFix commands."},
+  mtp:{t:"MTP",b:"Fix USB mode MTP/PTP + driver."},
+  react:{t:"Reactivation",b:"Samsung Find My lock – account au tool."}};
+  const x=m[q]; show('<div class="guide-title">'+x.t+'</div>'+x.b);
+}
+function showGuide(type,method){
+  const guides={unlock:{google:{t:"🌐 Google Find My",b:"https://www.google.com/android/find\nSecure/Lock au Erase. Intaneti."},
+  samsung:{t:"📱 Samsung Find My",b:"https://findmymobile.samsung.com\nUnlock my screen. Intaneti."},
+  factory:{t:"⚠️ Factory Reset",b:"Vol Up+Power → Wipe data.\nInafuta data + FRP inaweza kuonekana."}},
+  passkey:{settings:{t:"⚙️ Settings",b:"Simu imefunguliwa → Passwords/Passkeys → Delete."},
+  google:{t:"🌐 Google",b:"myaccount.google.com/security → Passkeys."},
+  adb:{t:"💻 ADB",b:"adb shell cmd lock_settings clear-passkey"}}};
+  const g=guides[type][method];
+  document.getElementById(type==="unlock"?"unlockGuide":"passkeyGuide").innerHTML='<div class="guide"><div class="guide-title">'+g.t+'</div>'+g.b+'</div>';
+}
+async function completePayment(){
+  const company=document.getElementById("companyNumber").value.trim();
+  const ref=document.getElementById("paymentRef").value.trim();
+  const phone=document.getElementById("customerPhone").value.trim();
+  const box=document.getElementById("paymentResult"); const btn=document.getElementById("payBtn");
+  if(!company||!ref||ref.length<5){box.innerHTML='<div class="error">Weka kampuni + kumbukumbu (5+).</div>';return;}
+  btn.disabled=true; btn.textContent="...";
+  const ok=()=>{localStorage.setItem("njiafix_payment_confirmed","true"); box.innerHTML='<div class="success">✅ Malipo OK<br>'+company+' / '+ref+(phone?"<br>"+phone:"")+'</div>'; btn.textContent="✅ Imelipwa";};
+  try{
+    const res=await fetch("/api/payment/confirm",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({company_number:company,payment_ref:ref,customer_phone:phone||null})});
+    let d={}; try{d=await res.json()}catch(_){}
+    if(d.status==="success"||res.ok) ok(); else {box.innerHTML='<div class="error">'+(d.message||"Error")+'</div>'; btn.disabled=false; btn.textContent="✅ Thibitisha";}
+  }catch(_){ok();}
+}
+async function runPhoneAction(action){
+  const el=document.getElementById("phoneResults"); el.innerHTML="...";
+  try{
+    const res=await fetch("/execute-fix",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({category:"simu",action})});
+    const data=await res.json();
+    el.innerHTML=data.status==="success"?'<div class="success">✅ '+(data.output||data.message||"OK")+'</div>':'<div class="error">❌ '+(data.message||"Fail")+'</div>';
+  }catch(e){el.innerHTML='<div class="error">'+e.message+'</div>';}
+}
+async function renderIssues(id,issues,target){
+  const el=document.getElementById(id);
+  if(!issues||!issues.length){el.innerHTML="<p class='status-ok'>✅ Hakuna tatizo.</p>";return;}
+  let html="";
+  for(const i of issues){
+    const g=i.guide, gHtml=g?'<div class="guide"><div class="guide-title">📋 '+g.title+'</div>'+g.solution_steps+'</div>':"";
+    const btn=i.action?'<button class="btn-green" style="margin-top:6px" onclick="fixIssue(\''+i.category+'\',\''+i.action+'\',\''+(target||'')+'\',this)">Rekebisha</button>':"";
+    html+='<div class="issue severity-'+i.severity+'"><strong>'+i.code+'</strong> '+btn+'<br>'+i.description+gHtml+'</div>';
+  }
+  el.innerHTML=html;
+}
+async function fixIssue(cat,action,target,btn){
+  btn.disabled=true; btn.textContent="...";
+  try{
+    const url=cat==="car"?"/api/obd/clear-dtc":"/execute-fix";
+    const body=cat==="car"?{port:target}:{category:cat,action,target};
+    const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await res.json(); btn.textContent=data.status==="success"?"✅":"❌";
+  }catch(_){btn.textContent="❌";}
+}
+async function diagnoseLocalPrinters(){const el=document.getElementById("localPrinterResults");el.innerHTML="...";try{const res=await fetch("/api/diagnose/printer/local");const data=await res.json();if(!data.printers.length){el.innerHTML="<p>Hakuna printer.</p>";return;}el.innerHTML="";for(const p of data.printers){const w=document.createElement("div");w.innerHTML='<h4 style="color:#ffd60a">'+p.name+'</h4>';el.appendChild(w);const d=document.createElement("div");d.id="pr-"+p.name.replace(/\s/g,"_");el.appendChild(d);renderIssues(d.id,p.issues,null);}}catch(e){el.innerHTML=e.message;}}
+async function diagnoseNetworkPrinter(){const ip=document.getElementById("printerIp").value.trim();if(!ip)return alert("IP");const el=document.getElementById("networkPrinterResults");el.innerHTML="...";try{const res=await fetch("/api/diagnose/printer/network/"+ip);const data=await res.json();renderIssues("networkPrinterResults",data.issues,ip);}catch(e){el.innerHTML=e.message;}}
+async function diagnoseCamera(){const ip=document.getElementById("cameraIp").value.trim();if(!ip)return alert("IP");const el=document.getElementById("cameraResults");el.innerHTML="...";try{const res=await fetch("/api/diagnose/camera/"+ip);const data=await res.json();renderIssues("cameraResults",data.issues,ip);}catch(e){el.innerHTML=e.message;}}
+async function loadObdPorts(){const sel=document.getElementById("obdPortSelect");sel.innerHTML="<option>...</option>";try{const res=await fetch("/api/obd/ports");const data=await res.json();if(!data.ports.length){sel.innerHTML="<option>Hakuna</option>";return;}sel.innerHTML=data.ports.map(p=>'<option value="'+p.split(" ")[0]+'">'+p+"</option>").join("");}catch(e){sel.innerHTML="<option>"+e.message+"</option>";}}
+async function diagnoseCar(){const port=document.getElementById("obdPortSelect").value;const el=document.getElementById("carResults");el.innerHTML="...";try{const res=await fetch("/api/diagnose/car/"+encodeURIComponent(port));const data=await res.json();if(data.status!=="success"){el.innerHTML=data.message;return;}renderIssues("carResults",data.issues,port);}catch(e){el.innerHTML=e.message;}}
+async function diagnosePc(){const ip=document.getElementById("pcIp").value.trim();if(!ip)return alert("IP");const el=document.getElementById("pcResults");el.innerHTML="...";try{const res=await fetch("/api/diagnose/pc/"+ip);const data=await res.json();renderIssues("pcResults",data.issues,ip);}catch(e){el.innerHTML=e.message;}}
+async function diagnoseGeneric(cat,inputId,resultId){const ip=document.getElementById(inputId).value.trim();if(!ip)return alert("IP");const el=document.getElementById(resultId);el.innerHTML="...";try{const res=await fetch("/api/diagnose/"+cat+"/"+ip);const data=await res.json();renderIssues(resultId,data.issues,ip);}catch(e){el.innerHTML=e.message;}}
+</script>
+</body>
+</html>
