@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="🔧 NjiaFix" android:textSize="24sp" android:textColor="@color/accent"
+            android:textStyle="bold" android:gravity="center" android:paddingBottom="8dp"/>
+        <TextView android:id="@+id/tvServer" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="#94a3b8" android:textSize="12sp"
+            android:gravity="center" android:paddingBottom="16dp"/>
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPhone"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="📱 Simu – Unlock / FRP / ADB" android:layout_marginBottom="8dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnOther"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="🖨️📷🚗 Vifaa vingine" android:layout_marginBottom="8dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnSettings"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="⚙️ Mipangilio (Server IP)" style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+    </LinearLayout>
+</ScrollView>

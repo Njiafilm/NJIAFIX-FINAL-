@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg" android:padding="16dp">
+    <TextView android:text="⚙️ Server IP" android:textColor="@color/accent" android:textSize="20sp"
+        android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView android:text="Weka IP ya PC inayoendesha NjiaFix (port 5555)"
+        android:textColor="#94a3b8" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingBottom="12dp" android:textSize="13sp"/>
+    <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="mfano: 192.168.1.10">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etServer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnSave"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="💾 Hifadhi" android:layout_marginTop="12dp"/>
+</LinearLayout>
