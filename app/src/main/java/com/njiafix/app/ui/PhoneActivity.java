@@ -80,11 +80,11 @@ public class PhoneActivity extends AppCompatActivity {
                     }
                     result.setText(sb.toString());
                 } catch (Exception e) {
-                    result.append("\n").append(body);
+                    result.append("\n" + body);
                 }
             }
             @Override public void onError(String message) {
-                result.append("\nDiagnose error: ").append(message);
+                result.append("\nDiagnose error: " + message);
             }
         });
     }
