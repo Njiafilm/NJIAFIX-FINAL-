@@ -1,8 +1,0 @@
-<resources>
-    <style name="Theme.NjiaFix" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/njiafix_primary</item>
-        <item name="colorPrimaryDark">@color/njiafix_primary_dark</item>
-        <item name="colorAccent">@color/njiafix_accent</item>
-        <item name="android:statusBarColor">@color/njiafix_primary_dark</item>
-    </style>
-</resources>
