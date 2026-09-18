@@ -1,58 +1,82 @@
+cat << 'EOF' > app/src/main/res/layout/activity_unlock.xml
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/bg" android:padding="16dp">
-    <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView android:text="🔓 Unlock + Passkey" android:textColor="@color/accent"
-            android:textSize="20sp" android:textStyle="bold" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:paddingBottom="8dp"/>
-        <TextView android:text="Unlock Screen" android:textColor="#c4b5fd" android:textStyle="bold"
-            android:layout_width="match_parent" android:layout_height="wrap_content"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnGoogle"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🌐 Google Find My"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnSamsung"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📱 Samsung Find My"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnFactory"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="⚠️ Factory Reset"/>
-        <TextView android:text="Ondoa Passkey" android:textColor="#fbbf24" android:textStyle="bold"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="16dp"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnPkSettings"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="⚙️ Settings"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnPkGoogle"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🌐 Google Account"/>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnPkAdb"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="💻 ADB"/>
-        <TextView android:id="@+id/tvGuide" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:textColor="@color/text" android:paddingTop="12dp"
-            android:textSize="13sp"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-        <TextView android:text="Tekeleza kwa ADB (Direct)" android:textColor="#fbbf24" android:textStyle="bold"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="20dp"/>
-        <TextView android:text="⚠️ Inahitaji uthibitisho wa mmiliki wa simu (jina + risiti/order) kabla ya kutekeleza."
-            android:textColor="#f87171" android:textSize="12sp" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:paddingBottom="8dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🔧 NjiaFix - Unlock Tools"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
 
-        <Spinner android:id="@+id/spinner_brands"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:prompt="@string/app_name"/>
+    <Button
+        android:id="@+id/btn_start_server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🟢 ANZISHA SERVER"
+        android:layout_marginBottom="8dp"/>
 
-        <com.google.android.material.button.MaterialButton android:id="@+id/btn_clear_passkey"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" android:text="Tekeleza: Futa Passkey"
-            app:backgroundTint="@color/primary"/>
+    <TextView
+        android:id="@+id/tv_server_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hali ya Server: Inasubiri..."
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
 
-        <com.google.android.material.button.MaterialButton android:id="@+id/btn_factory_reset"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" android:text="1-Click Factory Reset"
-            app:backgroundTint="#dc2626"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chagua Brand na Kitendo"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"/>
 
-        <TextView android:text="Historia ya Matokeo (Logs):" android:textColor="@color/text"
-            android:textStyle="bold" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:paddingTop="16dp"/>
-        <TextView android:id="@+id/txt_logs" android:text="Inasubiri amri..."
-            android:textColor="@color/text" android:textSize="12sp"
-            android:layout_width="match_parent" android:layout_height="wrap_content"/>
-    </LinearLayout>
-</ScrollView>
+    <Spinner
+        android:id="@+id/spinner_brands"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_clear_passkey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🔓 Futa Passkey (ADB)"
+        android:layout_marginBottom="10dp"/>
+
+    <Button
+        android:id="@+id/btn_factory_reset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Factory Reset"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logs:"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/txt_logs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Hali: Inasubiri amri..."
+        android:textSize="13sp"
+        android:padding="8dp"
+        android:background="#F5F5F5"
+        android:scrollbars="vertical"
+        android:fontFamily="monospace"/>
+
+</LinearLayout>
+EOF
