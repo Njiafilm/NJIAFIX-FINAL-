@@ -1,56 +1,82 @@
 package com.njiafix.app.ui;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.njiafix.app.R;
+import org.json.JSONObject;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class UnlockActivity extends AppCompatActivity {
-    private TextView guide;
+
+    private Spinner spinnerBrands;
+    private Button btnClearPasskey, btnFactoryReset;
+    private TextView txtLogs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unlock);
-        setTitle("Unlock / Passkey");
-        guide = findViewById(R.id.tvGuide);
+        setTitle("Unlock / Passkey - NjiaFix");
 
-        findViewById(R.id.btnGoogle).setOnClickListener(v -> set(
-                "🌐 Google Find My Device\n\n" +
-                "1. https://www.google.com/android/find\n" +
-                "2. Ingia account ya mteja\n" +
-                "3. Secure device / Lock au Erase\n\n" +
-                "Inahitaji INTANETI."));
-        findViewById(R.id.btnSamsung).setOnClickListener(v -> set(
-                "📱 Samsung Find My Mobile\n\n" +
-                "1. https://findmymobile.samsung.com\n" +
-                "2. Unlock my screen\n\n" +
-                "Inahitaji INTANETI + Find My Mobile ON."));
-        findViewById(R.id.btnFactory).setOnClickListener(v -> set(
-                "⚠️ Factory Reset (OFFLINE)\n\n" +
-                "Inafuta DATA YOTE!\n\n" +
-                "1. Zima simu\n" +
-                "2. Samsung: Vol Up + Power\n" +
-                "   Xiaomi/Tecno/Infinix: Vol Up + Power\n" +
-                "   Oppo/Realme: Vol Down + Power\n" +
-                "3. Wipe data/factory reset → Yes\n" +
-                "4. Reboot\n\n" +
-                "FRP inaweza kuonekana baadaye."));
-        findViewById(R.id.btnPkSettings).setOnClickListener(v -> set(
-                "⚙️ Passkey – Settings (OFFLINE)\n\n" +
-                "Simu IMEFUNGULIWA:\n" +
-                "Settings → Passwords / Passkeys → Delete"));
-        findViewById(R.id.btnPkGoogle).setOnClickListener(v -> set(
-                "🌐 Passkey – Google\n\n" +
-                "myaccount.google.com/security → Passkeys → Delete\n" +
-                "Inahitaji intaneti."));
-        findViewById(R.id.btnPkAdb).setOnClickListener(v -> set(
-                "💻 Passkey – ADB (OFFLINE)\n\n" +
-                "adb shell cmd lock_settings clear-passkey\n\n" +
-                "Si brand zote. USB Debugging ON."));
+        spinnerBrands = findViewById(R.id.spinner_brands);
+        btnClearPasskey = findViewById(R.id.btn_clear_passkey);
+        btnFactoryReset = findViewById(R.id.btn_factory_reset);
+        txtLogs = findViewById(R.id.txt_logs);
+
+        String[] brands = {"Samsung", "Xiaomi", "Tecno", "Infinix", "Oppo", "Realme", "General / Nyingine"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, brands);
+        spinnerBrands.setAdapter(adapter);
+
+        btnClearPasskey.setOnClickListener(v -> {
+            String selectedBrand = spinnerBrands.getSelectedItem().toString().toLowerCase().split(" ")[0];
+            sendActionToServer("clear_passkey", selectedBrand);
+        });
+
+        btnFactoryReset.setOnClickListener(v -> {
+            sendActionToServer("factory_reset", "general");
+        });
     }
 
-    private void set(String t) { guide.setText(t); }
+    private void sendActionToServer(String action, String brand) {
+        new Thread(() -> {
+            try {
+                URL url = new URL("http://127.0.0.1:5555/execute-fix");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setDoOutput(true);
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("action", action);
+                jsonParam.put("brand", brand);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonParam.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int responseCode = conn.getResponseCode();
+                runOnUiThread(() -> {
+                    if (responseCode == 200) {
+                        txtLogs.setText("Hali: Imefanikiwa! Amri imetumwa kupitia ADB.");
+                        Toast.makeText(this, "Imetekelezwa!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        txtLogs.setText("Hali: Imeshindikana kutuma amri (Error: " + responseCode + ")");
+                    }
+                });
+
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    txtLogs.setText("Hitilafu: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
 }
