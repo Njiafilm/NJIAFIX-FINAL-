@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="@color/bg" android:padding="16dp">
     <LinearLayout android:orientation="vertical" android:layout_width="match_parent"
@@ -26,5 +27,32 @@
         <TextView android:id="@+id/tvGuide" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:textColor="@color/text" android:paddingTop="12dp"
             android:textSize="13sp"/>
+
+        <TextView android:text="Tekeleza kwa ADB (Direct)" android:textColor="#fbbf24" android:textStyle="bold"
+            android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="20dp"/>
+        <TextView android:text="⚠️ Inahitaji uthibitisho wa mmiliki wa simu (jina + risiti/order) kabla ya kutekeleza."
+            android:textColor="#f87171" android:textSize="12sp" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:paddingBottom="8dp"/>
+
+        <Spinner android:id="@+id/spinner_brands"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:prompt="@string/app_name"/>
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_clear_passkey"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Tekeleza: Futa Passkey"
+            app:backgroundTint="@color/primary"/>
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btn_factory_reset"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="1-Click Factory Reset"
+            app:backgroundTint="#dc2626"/>
+
+        <TextView android:text="Historia ya Matokeo (Logs):" android:textColor="@color/text"
+            android:textStyle="bold" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:paddingTop="16dp"/>
+        <TextView android:id="@+id/txt_logs" android:text="Inasubiri amri..."
+            android:textColor="@color/text" android:textSize="12sp"
+            android:layout_width="match_parent" android:layout_height="wrap_content"/>
     </LinearLayout>
 </ScrollView>
