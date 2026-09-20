@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/bg" android:padding="16dp">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:text="Vifaa vingine" android:textColor="@color/accent" android:textSize="20sp"
+            android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:hint="IP address" android:layout_marginTop="8dp">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etIp"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:inputType="text" android:hint="mfano 192.168.1.1 (gari: 192.168.0.10)"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPrinter" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🖨️ Printer (network)"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCamera" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📷 Camera"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnRouter" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📶 Router"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🖥️ PC (mtandao)"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnTv" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📺 TV (mtandao)"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnObd" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🚗 Gari (OBD-II, adapta ya Wi-Fi ELM327)"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnObdClear" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🧹 Futa codes za gari"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnModbus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="⚡ Umeme / Modbus TCP"/>
+        <TextView android:text="Hazihitaji IP" android:textColor="@color/accent" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="12dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnLocal" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="💻 Kompyuta / simu inayoendesha server"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnUsb" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📟 Simu za button / USB (server iwe PC)"/>
+        <TextView android:id="@+id/tvOtherResult" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textColor="@color/text" android:paddingTop="12dp"/>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NjiaFix</string>
+    <string name="server_hint">IP ya server (PC ya fundi)</string>
+    <string name="developer_credit">Developer: Godwin Dotto</string>
+</resources>

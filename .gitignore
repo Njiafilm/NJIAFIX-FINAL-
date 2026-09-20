@@ -16,3 +16,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.log
+node_modules/
+payments.jsonl
+*.db
+.env
