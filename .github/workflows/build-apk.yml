@@ -1,8 +1,11 @@
-name: Build NjiaFix Debug APK
+name: Build APK
 
 on:
-  push:
   workflow_dispatch:
+  push:
+    paths:
+      - 'NjiaFixNative/**'
+      - '.github/workflows/build-apk.yml'
 
 jobs:
   build:
@@ -10,23 +13,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Generate Gradle wrapper
-        run: gradle wrapper --gradle-version 8.2
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon
+        working-directory: NjiaFixNative
+        run: gradle assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: njiafix-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: NjiaFix-debug-apk
+          path: NjiaFixNative/app/build/outputs/apk/debug/app-debug.apk
